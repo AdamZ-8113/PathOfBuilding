@@ -205,4 +205,24 @@ describe("Custom modifier controls", function()
 		assert.are.equal("Custom", customRow.source)
 		assert.are.equal("Bossing", customRow.sourceName)
 	end)
+
+	it("releases replaced custom modifier controls and their editing focus", function()
+		local config = build.configTab
+		local count = #config.controls
+		local old = setmetatable({ config.customModsBlockControls[1] }, { __mode = "v" })
+		config:SelectControl(old[1].controls.textEdit)
+		for index = 1, 20 do
+			config:UpdateCustomModsControls()
+		end
+		assert.are.equal(count, #config.controls)
+		assert.is_nil(config.selControl)
+		collectgarbage("collect")
+		collectgarbage("collect")
+		assert.is_nil(old[1])
+		local block = config.customModsBlockControls[1]
+		block.controls.textEdit:SetText("+100 to maximum Life", true)
+		assert.are.equal("+100 to maximum Life", config.configSets[config.activeConfigSetId].customModsList[1].text)
+		assert.is_true(block:IsShown())
+	end)
+
 end)

@@ -1317,6 +1317,12 @@ function ConfigTabClass:UpdateCustomModsControls()
 	if self.customModsBlockControls then
 		for _, ctrl in ipairs(self.customModsBlockControls) do
 			ctrl.shown = false
+			for _, child in pairs(ctrl.controls) do
+				if self.selControl == child then
+					self:SelectControl()
+				end
+			end
+			table.remove(self.controls, isValueInArray(self.controls, ctrl))
 		end
 	end
 	self.customModsBlockControls = { }
