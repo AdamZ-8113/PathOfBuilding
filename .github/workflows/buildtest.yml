@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [ci-validation-base]
   schedule:
-    - cron: '17 4 * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:
     inputs:
       mode:
