@@ -1284,6 +1284,7 @@ end
 -- 9. Processes charges and misc buffs (doActorCharges, doActorMisc)
 -- 10. Calculates defence and offence stats (calcs.defence, calcs.offence)
 function calcs.perform(env, skipEHP)
+	error("Intentional CI validation failure: calculation stopped")
 	local modDB = env.modDB
 	local enemyDB = env.enemyDB
 
