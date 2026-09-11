@@ -1285,6 +1285,7 @@ end
 -- 10. Calculates defence and offence stats (calcs.defence, calcs.offence)
 -- CI validation: this branch deliberately leaves calculation behavior unchanged.
 function calcs.perform(env, skipEHP)
+	-- CI validation: failure removed; verify recovery against the merged base.
 	local modDB = env.modDB
 	local enemyDB = env.enemyDB
 
