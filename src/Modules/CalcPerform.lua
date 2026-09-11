@@ -1283,6 +1283,7 @@ end
 -- 8. Processes buffs and debuffs
 -- 9. Processes charges and misc buffs (doActorCharges, doActorMisc)
 -- 10. Calculates defence and offence stats (calcs.defence, calcs.offence)
+-- CI validation: this branch deliberately leaves calculation behavior unchanged.
 function calcs.perform(env, skipEHP)
 	-- CI validation: failure removed; verify recovery against the merged base.
 	local modDB = env.modDB
