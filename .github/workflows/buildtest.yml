@@ -1,7 +1,7 @@
 name: Run Build Diff Tests
 on:
   pull_request:
-    branches: [dev]
+    branches: [ci-validation-base]
   schedule:
     - cron: '17 4 * * *'
   workflow_dispatch:
@@ -13,7 +13,7 @@ on:
         default: compare
       base_ref:
         description: Base branch or commit
-        default: dev
+        default: ci-validation-base
 permissions:
   contents: read
 concurrency:
@@ -33,7 +33,7 @@ jobs:
       - name: Select base and download the corpus once
         id: inputs
         env:
-          BASE_REF: ${{ github.event.pull_request.base.sha || inputs.base_ref || 'dev' }}
+          BASE_REF: ${{ github.event.pull_request.base.sha || inputs.base_ref || 'ci-validation-base' }}
         shell: bash
         run: |
           git fetch --depth=1 origin "$BASE_REF"
@@ -87,3 +87,4 @@ jobs:
           name: build-diff-output
           path: /tmp/build-diff-output
           if-no-files-found: ignore
+          retention-days: 1
