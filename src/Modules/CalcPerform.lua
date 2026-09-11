@@ -517,7 +517,7 @@ local function doActorAttribsConditions(env, actor)
 	if not modDB:Flag(nil, "NoAttributeBonuses") then
 		if not modDB:Flag(nil, "NoStrengthAttributeBonuses") then
 			if not modDB:Flag(nil, "NoStrBonusToLife") then
-				modDB:NewMod("Life", "BASE", m_floor(output.Str / 2), "Strength")
+				modDB:NewMod("Life", "BASE", m_floor(output.Str), "Strength")
 			end
 			local strDmgBonusRatioOverride = modDB:Sum("BASE", nil, "StrDmgBonusRatioOverride")
 			if strDmgBonusRatioOverride > 0 then
