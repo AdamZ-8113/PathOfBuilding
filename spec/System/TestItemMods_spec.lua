@@ -107,6 +107,7 @@ describe("TetsItemMods", function()
 		assert.are.equals(0, #controls.base.list)
 		assert.are.equals("^x7F7F7F<No Matches>", controls.base.defaultText)
 		assert.is_truthy(controls.status:GetProperty("label"):find("Select a base", 1, true))
+		assert.is_false(controls.otherStatus:IsShown())
 		assert.is_falsy(controls.save:IsEnabled())
 		controls.type:SelectIndex(energyShieldTypeIndex)
 		assert.is_true(#controls.base.list > 1)
@@ -559,10 +560,9 @@ describe("TetsItemMods", function()
 				break
 			end
 		end
-		local otherStatus = controls.otherStatus:GetProperty("label")
-		assert.is_falsy(otherStatus:find("These influences will be removed", 1, true))
-		assert.is_falsy(otherStatus:find("inherent influences", 1, true))
-		assert.is_truthy(otherStatus:find("No other modifiers are affected", 1, true))
+		assert.is_false(controls.otherStatus:IsShown())
+		assert.is_false(controls.otherStatus2:IsShown())
+		assert.is_false(controls.otherStatus3:IsShown())
 		main:ClosePopup()
 	end)
 

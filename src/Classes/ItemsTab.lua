@@ -3107,7 +3107,7 @@ function ItemsTabClass:ChangeDisplayItemBase()
 	local function getOtherStatusMessages()
 		local targetBaseEntry = getSelectedBase()
 		if not targetBaseEntry or targetBaseEntry.name == sourceBaseName then
-			return { "^x7F7F7FNo changes." }
+			return { }
 		end
 		local messages = { }
 		if state.removedInfluences.reset then
@@ -3127,9 +3127,6 @@ function ItemsTabClass:ChangeDisplayItemBase()
 		if hasOtherMods then
 			t_insert(messages, "^xFFB040Modifiers added via 'Add Modifier' persist, but are not checked for in-game compatibility")
 		end
-		if #messages == 0 then
-			t_insert(messages, "^x7F7F7FNo other modifiers are affected.")
-		end
 		return messages
 	end
 	local popup
@@ -3146,8 +3143,10 @@ function ItemsTabClass:ChangeDisplayItemBase()
 			local affix = state.removedAffixes[index]
 			y = layoutBaseChangeLabel(controls["removedAffix" .. index], affix and affix.label, affixTextWidth, y, colorCodes.NEGATIVE)
 		end
-		y = y + 5
 		local messages = getOtherStatusMessages()
+		if #messages > 0 then
+			y = y + 5
+		end
 		for index = 1, 3 do
 			local message = messages[index]
 			if message and index > 1 then
