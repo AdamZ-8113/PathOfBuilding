@@ -604,7 +604,7 @@ put it in the second.]])
 		return self.displayItem and self.displayItem.canBeInfluenced and 28 or 0
 	end})
 	-- Align the first influence dropdown with the right edge of the quality field below.
-	local influenceWidth = self.controls.displayItemSocketsLabel:GetSize() + 6 + 60
+	local influenceWidth = self.controls.displayItemSocketsLabel:GetSize() + 6 + 62
 	local influenceTipText = table.concat(main:WrapString("Selecting an influence here will also allow the modifier dropdowns to contain influenced mods.", 16, 140), "\n")
 	self.controls.displayItemInfluence = new("DropDownControl"):DropDownControl({"TOPLEFT",self.controls.displayItemSectionInfluence,"TOPRIGHT"}, {0, 0, influenceWidth, 20}, influenceDisplayList1, function(index, value)
 		local otherIndex = self.controls.displayItemInfluence2.selIndex
@@ -633,7 +633,7 @@ put it in the second.]])
 		return self.displayItem and (self.displayItem.quality ~= nil or isCatalystEligible(self.displayItem))
 	end
 
-	self.controls.displayItemQualityEdit = new("EditControl"):EditControl({"LEFT",self.controls.displayItemQuality,"RIGHT"}, {6, 0, 60, 20}, nil, nil, "%D", 2, function(buf)
+	self.controls.displayItemQualityEdit = new("EditControl"):EditControl({"LEFT",self.controls.displayItemQuality,"RIGHT"}, {6, 0, 62, 20}, nil, nil, "%D", 2, function(buf)
 		setEditableItemQuality(self.displayItem, tonumber(buf))
 		if isCatalystEligible(self.displayItem) and self.displayItem.crafted then
 			for i = 1, self.displayItem.affixLimit do
@@ -656,7 +656,7 @@ put it in the second.]])
 		end
 	end
 	self.controls.displayItemCatalyst = new("DropDownControl"):DropDownControl({"LEFT",self.controls.displayItemQualityEdit,"RIGHT",true}, {8, 0, 250, 20},
-		{"Catalyst","Abrasive (Attack)","Accelerating (Speed)","Dextral (Suffix)","Fertile (Life & Mana)","Imbued (Caster)","Intrinsic (Attribute)","Noxious (Physical & Chaos Damage)",
+		{"Catalyst","Abrasive (Attack)","Accelerating (Speed)","Dextral (Suffix)","Fertile (Life & Mana)","Imbued (Caster)","Intrinsic (Attribute)","Noxious (Phys & Chaos Damage)",
 		 "Prismatic (Resistance)","Sinistral (Prefix)","Tempering (Defense)","Turbulent (Elemental)","Unstable (Critical)"},
 		function(index, value)
 			local quality = tonumber(self.controls.displayItemQualityEdit.buf) or 20
@@ -714,12 +714,13 @@ put it in the second.]])
 	self.controls.craftingSorting = new("DropDownControl"):DropDownControl({ "LEFT", self.controls.craftingSortingLabel, "RIGHT" }, { 6, 0, affixX + affixRangeWidth - self.controls.craftingSortingLabel:GetSize() - 6, 20 }, sortingOptions, function()
 		self:UpdateAffixControls()
 	end)
+	self.controls.displayItemCatalyst.width = self.controls.craftingSorting:GetSize() - self.controls.displayItemQualityEdit:GetSize() - 8
 
 	-- Section: Affix Selection
 	local maxModCount = 9
 	self.controls.displayItemSectionAffix = new("Control"):Control({ "TOPLEFT", self.controls.craftingSortingLabel, "BOTTOMLEFT", true }, { 0, function()
 		if self.controls.craftingSortingLabel.shown() then
-			return 8
+			return 13
 		else
 			return -16
 		end
@@ -1110,7 +1111,7 @@ put it in the second.]])
 		function box:Draw(...)
 			local x, y = self:GetPos()
 			SetDrawColor(1, 1, 1)
-			DrawImage(foulbornIcon, x - 24, y, 20, 20)
+			DrawImage(foulbornIcon, x - 24, y - 1, 20, 20)
 			return box:RealDraw(...)
 		end
 
@@ -1138,7 +1139,7 @@ put it in the second.]])
 
 		self.controls["displayItemStackedRangeSlider" .. i] = slider
 
-		self.controls["displayItemStackedRangeLine" .. i] = new("LabelControl"):LabelControl({ "LEFT", slider, "RIGHT", true }, { 4, -2, 350, labelFontSize }, function()
+		self.controls["displayItemStackedRangeLine" .. i] = new("LabelControl"):LabelControl({ "LEFT", slider, "RIGHT", true }, { 4, -1, 350, labelFontSize }, function()
 			local modLine = self.displayItem.rangeLineList[i]
 			if self.displayItem and modLine then
 				local colour = modLine.mutated and colorCodes.MUTATED or "^7"

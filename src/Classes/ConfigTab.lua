@@ -306,14 +306,14 @@ function ConfigTabClass:ConfigTab(build)
 		else
 			local control
 			if varData.type == "check" then
-				control = new("CheckBoxControl"):CheckBoxControl({"TOPLEFT",lastSection,"TOPLEFT"}, {254, 0, 18}, varData.label, function(state)
+				control = new("CheckBoxControl"):CheckBoxControl({"TOPLEFT",lastSection,"TOPLEFT"}, {230, 0, 18}, varData.label, function(state)
 					self.configSets[self.activeConfigSetId].input[varData.var] = state
 					self:AddUndoState()
 					self:BuildModList()
 					self.build.buildFlag = true
 				end)
 			elseif varData.type == "count" or varData.type == "integer" or varData.type == "countAllowZero" or varData.type == "float" then
-				control = new("EditControl"):EditControl({"TOPLEFT",lastSection,"TOPLEFT"}, {254, 0, 90, 18}, "", nil, ((varData.type == "integer" or varData.type == "countAllowZero") and "^%-%d") or (varData.type == "float" and "^%d.") or "%D", 10, function(buf, placeholder)
+				control = new("EditControl"):EditControl({"TOPLEFT",lastSection,"TOPLEFT"}, {230, 0, 114, 18}, "", nil, ((varData.type == "integer" or varData.type == "countAllowZero") and "^%-%d") or (varData.type == "float" and "^%d.") or "%D", 10, function(buf, placeholder)
 					if placeholder then
 						self.configSets[self.activeConfigSetId].placeholder[varData.var] = tonumber(buf)
 					else
@@ -324,7 +324,7 @@ function ConfigTabClass:ConfigTab(build)
 					self.build.buildFlag = true
 				end)
 			elseif varData.type == "list" then
-				control = new("DropDownControl"):DropDownControl({"TOPLEFT",lastSection,"TOPLEFT"}, {254, 0, 118, 18}, varData.list, function(index, value)
+				control = new("DropDownControl"):DropDownControl({"TOPLEFT",lastSection,"TOPLEFT"}, {230, 0, 142, 18}, varData.list, function(index, value)
 					self.configSets[self.activeConfigSetId].input[varData.var] = value.val
 					self:AddUndoState()
 					self:BuildModList()
@@ -353,7 +353,7 @@ function ConfigTabClass:ConfigTab(build)
 					self.build.buildFlag = true
 				end, 16)
 			else
-				control = new("Control"):Control({"TOPLEFT",lastSection,"TOPLEFT"}, {254, 0, 16, 16})
+				control = new("Control"):Control({"TOPLEFT",lastSection,"TOPLEFT"}, {230, 0, 16, 16})
 			end
 
 			if varData.inactiveText then
