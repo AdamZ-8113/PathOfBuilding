@@ -1438,6 +1438,10 @@ function calcs.offence(env, actor, activeSkill)
 			}
 		end
 		output.TotemLife, output.TotemLifeMod = calcs.calcTotemLife(env, activeSkill)
+		local sacrificedLife = skillModList:GetMultiplier("SacrificePercent", skillCfg)
+		if sacrificedLife > 0 and output.LifeUnreserved > 0 then
+			skillModList:NewMod("Multiplier:SacrificePercent", "OVERRIDE", sacrificedLife * output.TotemLife / output.LifeUnreserved, "Sacrifice Support")
+		end
 		output.TotemEnergyShield = skillModList:Sum("BASE", skillCfg, "TotemEnergyShield")
 		output.TotemBlockChance = skillModList:Sum("BASE", skillCfg, "TotemBlockChance")
 		output.TotemArmour = skillModList:Sum("BASE", skillCfg, "TotemArmour")
