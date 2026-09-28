@@ -1438,9 +1438,14 @@ function calcs.offence(env, actor, activeSkill)
 			}
 		end
 		output.TotemLife, output.TotemLifeMod = calcs.calcTotemLife(env, activeSkill)
-		local sacrificedLife = skillModList:GetMultiplier("SacrificePercent", skillCfg)
-		if sacrificedLife > 0 and output.LifeUnreserved > 0 then
-			skillModList:NewMod("Multiplier:SacrificePercent", "OVERRIDE", sacrificedLife * output.TotemLife / output.LifeUnreserved, "Sacrifice Support")
+		-- PercentStat resolves and rounds against player life, so use its raw percentage for the totem.
+		local sacrificePercent = 0
+		for _, value in ipairs(skillModList:Tabulate("BASE", skillCfg, "Multiplier:SacrificePercent")) do
+			sacrificePercent = sacrificePercent + value.mod.value
+		end
+		if sacrificePercent > 0 then
+			local sacrificedLife = m_ceil(output.TotemLife * sacrificePercent / 100)
+			skillModList:NewMod("Multiplier:SacrificePercent", "OVERRIDE", sacrificedLife, "Sacrifice Support")
 		end
 		output.TotemEnergyShield = skillModList:Sum("BASE", skillCfg, "TotemEnergyShield")
 		output.TotemBlockChance = skillModList:Sum("BASE", skillCfg, "TotemBlockChance")
