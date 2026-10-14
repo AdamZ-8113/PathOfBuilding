@@ -263,13 +263,16 @@ function ItemDBClass:ListBuilder()
 					local output = calcFunc(item.base.flask and { toggleFlask = item } or item.base.tincture and { toggleTincture = item } or { repSlotName = slotName, repItem = item }, useFullDPS)
 					local measuredPower = data.powerStatList.GetFromOutput(output, self.sortDetail)
 					item.measuredPower = m_max(item.measuredPower, measuredPower)
+					if item.base.flask or item.base.tincture then
+						break -- Consumable overrides do not depend on the slot
+					end
 				end
 			end
 			local now = GetTime()
 			if now - start > 50 then
 				self.defaultText = "^7Sorting... ("..m_floor(itemIndex/#list*100).."%)"
 				coroutine.yield()
-				start = now
+				start = GetTime()
 			end
 		end
 	end
