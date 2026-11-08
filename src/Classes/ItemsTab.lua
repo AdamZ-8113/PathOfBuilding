@@ -18,6 +18,7 @@ local m_modf = math.modf
 local buySimilar = require("Classes.CompareBuySimilar")
 local addImplicit = require("Modules.AddImplicitPopup")
 local gemTooltip = require("Classes.GemTooltip")
+local wickerman = require("Modules.Wickerman")
 
 local rarityDropList = {
 	{ label = colorCodes.NORMAL.."Normal", rarity = "NORMAL" },
@@ -34,7 +35,13 @@ local socketDropList = {
 	{ label = colorCodes.SCION.."W", color = "W" }
 }
 
-local baseSlots = { "Weapon 1", "Weapon 2", "Helmet", "Body Armour", "Gloves", "Boots", "Amulet", "Ring 1", "Ring 2", "Ring 3", "Belt", "Graft 1", "Graft 2", "Flask 1", "Flask 2", "Flask 3", "Flask 4", "Flask 5" }
+local baseSlots = { "Weapon 1", "Weapon 2", "Helmet", "Body Armour", "Gloves", "Boots", "Amulet", "Ring 1", "Ring 2", "Ring 3", "Belt", "Graft 1", "Graft 2" }
+for index = 1, 5 do
+	t_insert(baseSlots, "Flask "..index)
+end
+for _, slot in ipairs(wickerman.slotList) do
+	t_insert(baseSlots, slot.name)
+end
 
 local forbiddenJewelCounterpart = {
 	["Forbidden Flame"] = "Forbidden Flesh",
@@ -151,7 +158,15 @@ function ItemsTabClass:ItemsTab(build)
 		t_insert(self.controls, slot)
 	end
 	for index, slotName in ipairs(baseSlots) do
-		local slot = new("ItemSlotControl"):ItemSlotControl({"TOPLEFT",prevSlot,"BOTTOMLEFT"}, 0, 2, self, slotName)
+		local wickermanSlot = wickerman.slots[slotName]
+		if wickermanSlot and not self.controls.wickermanHeader then
+			self.controls.wickermanHeader = new("LabelControl"):LabelControl({"TOPLEFT",prevSlot,"BOTTOMLEFT"}, {0, 2, 0, 16}, "^7Wickerman:")
+			self.controls.wickermanHeader.shown = function()
+				return wickerman.IsEnabledForVersion(self.build.spec.treeVersion)
+			end
+			prevSlot = self.controls.wickermanHeader
+		end
+		local slot = new("ItemSlotControl"):ItemSlotControl({"TOPLEFT",prevSlot,"BOTTOMLEFT"}, 0, 2, self, slotName, wickermanSlot and wickermanSlot.label)
 		addSlot(slot)
 		if slotName:match("Weapon") then
 			-- Add alternate weapon slot
@@ -178,6 +193,10 @@ function ItemsTabClass:ItemsTab(build)
 		elseif slotName == "Graft 1" or slotName == "Graft 2" then
 			slot.shown = function()
 				return self.build.spec.treeVersion:find("3_27")
+			end
+		elseif wickermanSlot then
+			slot.shown = function()
+				return wickerman.IsEnabledForVersion(self.build.spec.treeVersion)
 			end
 		elseif slotName == "Ring 3" then
 			slot.shown = function()
@@ -1247,6 +1266,7 @@ end
 
 function ItemsTabClass:Load(xml, dbFileName)
 	self.activeItemSetId = 0
+	self.activeItemSet = nil
 	self.itemSets = { }
 	self.itemSetOrderList = { }
 	self.tradeQuery.statSortSelectionList = { }
@@ -2616,6 +2636,9 @@ end
 -- For example, a shield is not valid for Weapon 2 if Weapon 1 is a staff, and a wand is not valid for Weapon 2 if Weapon 1 is a dagger
 function ItemsTabClass:IsItemValidForSlot(item, slotName, itemSet)
 	itemSet = itemSet or self.activeItemSet
+	if wickerman.slots[slotName] then
+		return wickerman.GetSlotName(item) == slotName
+	end
 	local slotType, slotId = slotName:match("^([%a ]+) (%d+)$")
 	if not slotType then
 		slotType = slotName

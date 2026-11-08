@@ -5,6 +5,7 @@
 --
 ---@class Calcs
 local calcs = require("Modules.CalcBase")
+local wickerman = require("Modules.Wickerman")
 
 local pairs = pairs
 local ipairs = ipairs
@@ -818,6 +819,8 @@ function calcs.initEnv(build, mode, override, specEnv)
 				if not build.spec.treeVersion:find("3_27") then
 					goto continue
 				end
+			elseif wickerman.slots[slotName] and not wickerman.IsEnabledForVersion(build.spec.treeVersion) then
+				goto continue
 			end
 			-- ignore item in Ring 3 if The Unseen Hand is not allocated
 			if slotName == "Ring 3" and not env.initialNodeModDB:Flag(nil, "AdditionalRingSlot") then
@@ -1288,7 +1291,7 @@ function calcs.initEnv(build, mode, override, specEnv)
 				if item.classRestriction then
 					env.itemModDB.conditions[item.title:gsub(" ", "")] = item.classRestriction
 				end
-				if item.type ~= "Jewel" and item.type ~= "Flask" and item.type ~= "Tincture" and item.type ~= "Graft" then
+				if item.type ~= "Jewel" and item.type ~= "Flask" and item.type ~= "Tincture" and item.type ~= "Graft" and not wickerman.IsItem(item) then
 					-- Update item counts
 					local key
 					if item.rarity == "UNIQUE" or item.rarity == "RELIC" then

@@ -9,6 +9,8 @@ local t_insert = table.insert
 local m_max = math.max
 local m_floor = math.floor
 
+local wickerman = require("Modules.Wickerman")
+
 
 ---@class ItemDBControl: ListControl
 local ItemDBClass = newClass("ItemDBControl", "ListControl")
@@ -40,6 +42,9 @@ function ItemDBClass:ItemDBControl(anchor, rect, itemsTab, db, dbType)
 	self.leagueList = { "Any league", "No league" }
 	self.typeList = { "Any type", "Armour", "Jewellery", "One Handed Melee", "Two Handed Melee" }
 	self.slotList = { "Any slot", "Weapon 1", "Weapon 2", "Helmet", "Body Armour", "Gloves", "Boots", "Amulet", "Ring", "Belt", "Jewel", "Flask", "Graft 1", "Graft 2" }
+	for _, slot in ipairs(wickerman.slotList) do
+		t_insert(self.slotList, { label = slot.label, slotName = slot.name })
+	end
 	local baseY = dbType == "RARE" and -22 or -62
 	self.controls.slot = new("DropDownControl"):DropDownControl({"BOTTOMLEFT",self,"TOPLEFT"}, {0, baseY, 179, 18}, self.slotList, function(index, value)
 		self.listBuildFlag = true
@@ -95,7 +100,9 @@ end
 function ItemDBClass:DoesItemMatchFilters(item)
 	if self.controls.slot.selIndex > 1 then
 		local primarySlot = item:GetPrimarySlot()
-		if primarySlot ~= self.slotList[self.controls.slot.selIndex] and primarySlot:gsub(" %d","") ~= self.slotList[self.controls.slot.selIndex] then
+		local slotEntry = self.slotList[self.controls.slot.selIndex]
+		local slotName = type(slotEntry) == "table" and slotEntry.slotName or slotEntry
+		if primarySlot ~= slotName and primarySlot:gsub(" %d","") ~= slotName then
 			return false
 		end
 	end
