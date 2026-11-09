@@ -18,6 +18,7 @@ local m_modf = math.modf
 local buySimilar = require("Classes.CompareBuySimilar")
 local addImplicit = require("Modules.AddImplicitPopup")
 local gemTooltip = require("Classes.GemTooltip")
+local wickerman = require("Modules.Wickerman")
 
 local rarityDropList = {
 	{ label = colorCodes.NORMAL.."Normal", rarity = "NORMAL" },
@@ -35,6 +36,9 @@ local socketDropList = {
 }
 
 local baseSlots = { "Weapon 1", "Weapon 2", "Helmet", "Body Armour", "Gloves", "Boots", "Amulet", "Ring 1", "Ring 2", "Ring 3", "Belt", "Graft 1", "Graft 2", "Flask 1", "Flask 2", "Flask 3", "Flask 4", "Flask 5" }
+for _, slot in ipairs(wickerman.slotList) do
+	t_insert(baseSlots, slot.name)
+end
 
 local forbiddenJewelCounterpart = {
 	["Forbidden Flame"] = "Forbidden Flesh",
@@ -151,7 +155,15 @@ function ItemsTabClass:ItemsTab(build)
 		t_insert(self.controls, slot)
 	end
 	for index, slotName in ipairs(baseSlots) do
-		local slot = new("ItemSlotControl"):ItemSlotControl({"TOPLEFT",prevSlot,"BOTTOMLEFT"}, 0, 2, self, slotName)
+		local wickermanSlot = wickerman.slots[slotName]
+		if wickermanSlot and not self.controls.wickermanHeader then
+			self.controls.wickermanHeader = new("LabelControl"):LabelControl({"TOPLEFT",prevSlot,"BOTTOMLEFT"}, {0, 9, 0, 16}, "^7Wickerman:")
+			self.controls.wickermanHeader.shown = function()
+				return self.build.spec.treeVersion:find("3_30")
+			end
+			prevSlot = self.controls.wickermanHeader
+		end
+		local slot = new("ItemSlotControl"):ItemSlotControl({"TOPLEFT",prevSlot,"BOTTOMLEFT"}, 0, 2, self, slotName, wickermanSlot and wickermanSlot.label)
 		addSlot(slot)
 		if slotName:match("Weapon") then
 			-- Add alternate weapon slot
@@ -179,6 +191,10 @@ function ItemsTabClass:ItemsTab(build)
 			slot.shown = function()
 				return self.build.spec.treeVersion:find("3_27")
 			end
+		elseif wickermanSlot then
+			slot.shown = function()
+				return self.build.spec.treeVersion:find("3_30")
+			end
 		elseif slotName == "Ring 3" then
 			slot.shown = function()
 				return self.build.calcsTab.mainEnv.modDB:Flag(nil, "AdditionalRingSlot")
@@ -202,7 +218,7 @@ function ItemsTabClass:ItemsTab(build)
 	end
 
 	-- Passive tree dropdown controls
-	self.controls.specSelect = new("DropDownControl"):DropDownControl({"TOPLEFT",prevSlot,"BOTTOMLEFT"}, {0, 8, 216, 20}, nil, function(index, value)
+	self.controls.specSelect = new("DropDownControl"):DropDownControl({"TOPLEFT",prevSlot,"BOTTOMLEFT",true}, {0, 11, 216, 20}, nil, function(index, value)
 		if self.build.treeTab.specList[index] then
 			self.build.modFlag = true
 			self.build.treeTab:SetActiveSpec(index)
@@ -1241,7 +1257,7 @@ holding Shift will put it in the second.]])
 	self:SetActiveItemSet(1)
 
 	self:PopulateSlots()
-	self.lastSlot = self.slots[baseSlots[#baseSlots]]
+	self.lastSlot = self.slots["Flask 5"]
 	return self
 end
 
@@ -1470,6 +1486,9 @@ function ItemsTabClass:Save(xml)
 end
 
 function ItemsTabClass:Draw(viewPort, inputEvents)
+	local wickermanEnabled = not not self.build.spec.treeVersion:find("3_30")
+	self.controls.uniqueDB:UpdateWickermanSlots(wickermanEnabled)
+	self.controls.rareDB:UpdateWickermanSlots(wickermanEnabled)
 	self.x = viewPort.x
 	self.y = viewPort.y
 	self.width = viewPort.width
@@ -1723,7 +1742,7 @@ function ItemsTabClass:UpdateSockets()
 	table.sort(activeSocketList)
 
 	-- Update the state of the active socket controls
-	self.lastSlot = self.slots[baseSlots[#baseSlots]]
+	self.lastSlot = self.slots[self.build.spec.treeVersion:find("3_30") and "Wickerman Lower Limb" or "Flask 5"]
 	for index, nodeId in ipairs(activeSocketList) do
 		self.sockets[nodeId].label = "Socket #"..index
 		self.lastSlot = self.sockets[nodeId]

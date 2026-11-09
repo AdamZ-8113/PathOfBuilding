@@ -9,6 +9,26 @@ describe("ItemDBControl", function()
 		GetCursorPos = originalGetCursorPos
 	end)
 
+	it("preserves Graft slot filters when Wickerman filters change", function()
+		local item = new("Item"):Item("")
+		item.base = { }
+		item.type = "Graft"
+		for _, dbType in ipairs({ "RARE", "UNIQUE" }) do
+			local control = new("ItemDBControl"):ItemDBControl(nil, { 0, 0, 100, 100 }, { }, { list = { } }, dbType)
+			control.controls.slot:SelByValue("Graft 1")
+			assert.are.equal("Graft 1", control.slotList[control.controls.slot.selIndex])
+			assert.is_true(control:DoesItemMatchFilters(item))
+			control:UpdateWickermanSlots(true)
+			assert.are.equal("Graft 1", control.slotList[control.controls.slot.selIndex])
+			assert.is_true(control:DoesItemMatchFilters(item))
+			control:UpdateWickermanSlots(false)
+			assert.are.equal("Graft 1", control.slotList[control.controls.slot.selIndex])
+			assert.is_true(control:DoesItemMatchFilters(item))
+			control.controls.slot:SelByValue("Graft 2")
+			assert.are.equal("Graft 2", control.slotList[control.controls.slot.selIndex])
+		end
+	end)
+
 	it("sorts lower-is-better stats below zero", function()
 		local function makeItem(name)
 			return {
