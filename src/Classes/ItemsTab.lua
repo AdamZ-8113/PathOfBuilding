@@ -221,7 +221,7 @@ function ItemsTabClass:ItemsTab(build)
 	end
 
 	-- Passive tree dropdown controls
-	self.controls.specSelect = new("DropDownControl"):DropDownControl({"TOPLEFT",prevSlot,"BOTTOMLEFT"}, {0, 11, 216, 20}, nil, function(index, value)
+	self.controls.specSelect = new("DropDownControl"):DropDownControl({"TOPLEFT",prevSlot,"BOTTOMLEFT",true}, {0, 11, 216, 20}, nil, function(index, value)
 		if self.build.treeTab.specList[index] then
 			self.build.modFlag = true
 			self.build.treeTab:SetActiveSpec(index)
@@ -1260,7 +1260,7 @@ holding Shift will put it in the second.]])
 	self:SetActiveItemSet(1)
 
 	self:PopulateSlots()
-	self.lastSlot = self.slots[baseSlots[#baseSlots]]
+	self.lastSlot = self.controls.specSelect
 	return self
 end
 
@@ -1490,6 +1490,9 @@ function ItemsTabClass:Save(xml)
 end
 
 function ItemsTabClass:Draw(viewPort, inputEvents)
+	local wickermanEnabled = not not self.build.spec.treeVersion:find("3_30")
+	self.controls.uniqueDB:UpdateWickermanSlots(wickermanEnabled)
+	self.controls.rareDB:UpdateWickermanSlots(wickermanEnabled)
 	self.x = viewPort.x
 	self.y = viewPort.y
 	self.width = viewPort.width
@@ -1743,7 +1746,7 @@ function ItemsTabClass:UpdateSockets()
 	table.sort(activeSocketList)
 
 	-- Update the state of the active socket controls
-	self.lastSlot = self.slots[baseSlots[#baseSlots]]
+	self.lastSlot = self.controls.specSelect
 	for index, nodeId in ipairs(activeSocketList) do
 		self.sockets[nodeId].label = "Socket #"..index
 		self.lastSlot = self.sockets[nodeId]

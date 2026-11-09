@@ -39,12 +39,10 @@ function ItemDBClass:ItemDBControl(anchor, rect, itemsTab, db, dbType)
 	self.sortOrder = { }
 	self.sortMode = "NAME"
 	self.leaguesAndTypesLoaded = false
+	self.wickermanSlotsVisible = false
 	self.leagueList = { "Any league", "No league" }
 	self.typeList = { "Any type", "Armour", "Jewellery", "One Handed Melee", "Two Handed Melee" }
-	self.slotList = { "Any slot", "Weapon 1", "Weapon 2", "Helmet", "Body Armour", "Gloves", "Boots", "Amulet", "Ring", "Belt", "Jewel", "Flask", "Graft 1", "Graft 2" }
-	for _, slot in ipairs(wickerman.slotList) do
-		t_insert(self.slotList, { label = slot.label, slotName = slot.name })
-	end
+	self.slotList = { "Any slot", "Weapon 1", "Weapon 2", "Helmet", "Body Armour", "Gloves", "Boots", "Amulet", "Ring", "Belt", "Jewel", "Flask" }
 	local baseY = dbType == "RARE" and -22 or -62
 	self.controls.slot = new("DropDownControl"):DropDownControl({"BOTTOMLEFT",self,"TOPLEFT"}, {0, baseY, 179, 18}, self.slotList, function(index, value)
 		self.listBuildFlag = true
@@ -75,6 +73,28 @@ function ItemDBClass:ItemDBControl(anchor, rect, itemsTab, db, dbType)
 	self:BuildSortOrder()
 	self.listBuildFlag = true
 	return self
+end
+
+function ItemDBClass:UpdateWickermanSlots(enabled)
+	if self.wickermanSlotsVisible == enabled then
+		return
+	end
+	self.wickermanSlotsVisible = enabled
+	if enabled then
+		for _, slot in ipairs(wickerman.slotList) do
+			t_insert(self.slotList, { label = slot.label, slotName = slot.name })
+		end
+	else
+		for _ = 1, #wickerman.slotList do
+			table.remove(self.slotList)
+		end
+		if self.controls.slot.selIndex > #self.slotList then
+			self.controls.slot.selIndex = 1
+		end
+	end
+	self.controls.slot.dropped = false
+	self.controls.slot:CheckDroppedWidth(self.controls.slot.enableDroppedWidth)
+	self.listBuildFlag = true
 end
 
 function ItemDBClass:LoadLeaguesAndTypes()
