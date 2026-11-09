@@ -819,7 +819,7 @@ function calcs.initEnv(build, mode, override, specEnv)
 				if not build.spec.treeVersion:find("3_27") then
 					goto continue
 				end
-			elseif wickerman.slots[slotName] and not wickerman.IsEnabledForVersion(build.spec.treeVersion) then
+			elseif wickerman.slots[slotName] and not build.spec.treeVersion:find("3_30") then
 				goto continue
 			end
 			-- ignore item in Ring 3 if The Unseen Hand is not allocated

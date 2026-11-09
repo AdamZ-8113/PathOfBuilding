@@ -160,9 +160,9 @@ function ItemsTabClass:ItemsTab(build)
 	for index, slotName in ipairs(baseSlots) do
 		local wickermanSlot = wickerman.slots[slotName]
 		if wickermanSlot and not self.controls.wickermanHeader then
-			self.controls.wickermanHeader = new("LabelControl"):LabelControl({"TOPLEFT",prevSlot,"BOTTOMLEFT"}, {0, 2, 0, 16}, "^7Wickerman:")
+			self.controls.wickermanHeader = new("LabelControl"):LabelControl({"TOPLEFT",prevSlot,"BOTTOMLEFT"}, {0, 9, 0, 16}, "^7Wickerman:")
 			self.controls.wickermanHeader.shown = function()
-				return wickerman.IsEnabledForVersion(self.build.spec.treeVersion)
+				return self.build.spec.treeVersion:find("3_30")
 			end
 			prevSlot = self.controls.wickermanHeader
 		end
@@ -196,7 +196,7 @@ function ItemsTabClass:ItemsTab(build)
 			end
 		elseif wickermanSlot then
 			slot.shown = function()
-				return wickerman.IsEnabledForVersion(self.build.spec.treeVersion)
+				return self.build.spec.treeVersion:find("3_30")
 			end
 		elseif slotName == "Ring 3" then
 			slot.shown = function()
@@ -221,7 +221,7 @@ function ItemsTabClass:ItemsTab(build)
 	end
 
 	-- Passive tree dropdown controls
-	self.controls.specSelect = new("DropDownControl"):DropDownControl({"TOPLEFT",prevSlot,"BOTTOMLEFT"}, {0, 8, 216, 20}, nil, function(index, value)
+	self.controls.specSelect = new("DropDownControl"):DropDownControl({"TOPLEFT",prevSlot,"BOTTOMLEFT"}, {0, 11, 216, 20}, nil, function(index, value)
 		if self.build.treeTab.specList[index] then
 			self.build.modFlag = true
 			self.build.treeTab:SetActiveSpec(index)

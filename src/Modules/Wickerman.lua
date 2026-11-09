@@ -5,9 +5,9 @@
 --
 local slotList = {
 	{ name = "Wickerman Head", label = "Head" },
-	{ name = "Wickerman Torso", label = "Body" },
-	{ name = "Wickerman Upper Limb", label = "Arm" },
-	{ name = "Wickerman Lower Limb", label = "Leg" },
+	{ name = "Wickerman Torso", label = "Torso" },
+	{ name = "Wickerman Upper Limb", label = "Upper Limb" },
+	{ name = "Wickerman Lower Limb", label = "Lower Limb" },
 }
 
 local slots = { }
@@ -29,9 +29,5 @@ return {
 	GetSlotName = GetSlotName,
 	IsItem = function(item)
 		return GetSlotName(item) ~= nil
-	end,
-	-- Temporary development override until the 3.30 tree is available upstream.
-	IsEnabledForVersion = function()
-		return true
 	end,
 }
