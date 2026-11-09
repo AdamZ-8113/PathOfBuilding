@@ -10,6 +10,8 @@ local m_min = math.min
 local m_max = math.max
 local m_floor = math.floor
 
+local wickerman = require("Modules.Wickerman")
+
 local dmgTypeList = {"Physical", "Lightning", "Cold", "Fire", "Chaos"}
 local catalystList = {"Abrasive", "Accelerating", "Dextral", "Fertile", "Imbued", "Intrinsic", "Noxious", "Prismatic", "Sinistral", "Tempering", "Turbulent", "Unstable"}
 local catalystDescriptorList = {"Attack", "Speed", "Suffix", "Life and Mana", "Caster", "Attribute", "Physical and Chaos", "Resistance", "Prefix", "Defence", "Elemental", "Critical"}
@@ -2179,7 +2181,10 @@ function ItemClass:GetModLineVariantCount(modLine)
 end
 -- Return the name of the slot this item is equipped in
 function ItemClass:GetPrimarySlot()
-	if self.base.weapon then
+	local wickermanSlot = wickerman.GetSlotName(self)
+	if wickermanSlot then
+		return wickermanSlot
+	elseif self.base.weapon then
 		return "Weapon 1"
 	elseif self.type == "Quiver" or self.type == "Shield" then
 		return "Weapon 2"
