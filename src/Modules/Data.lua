@@ -1181,6 +1181,7 @@ end
 ---@field socketLimit? integer # max sockets (weapons/armour only)
 ---@field hidden? boolean # excluded from the base-type selection lists
 ---@field cannotBeAnointed? boolean
+---@field wickermanSlot? string # stable Wickerman slot identifier for 3.30 Viscera
 ---@field tags table<string, true> # e.g. { armour = true, helmet = true, str_armour = true }
 ---@field influenceTags? table<string, string> # influence -> mod tag, e.g. { shaper = "helmet_shaper" }
 ---@field implicit? string # implicit mod line(s), newline-separated

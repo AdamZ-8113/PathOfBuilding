@@ -10,6 +10,7 @@ local b_rshift = bit.rshift
 local band = bit.band
 local m_max = math.max
 local dkjson = require "dkjson"
+local wickerman = require("Modules.Wickerman")
 
 
 
@@ -1503,6 +1504,11 @@ function ImportTabClass:ImportItem(itemData, slotName, ignoreWeaponSwap, itemSet
 		elseif not (ignoreWeaponSwap and (itemData.inventoryId == "Weapon2" or itemData.inventoryId == "Offhand2")) then
 			slotName = slotMap[itemData.inventoryId]
 		end
+	end
+	if not slotName and itemData.typeLine then
+		local baseName = sanitiseText(itemData.typeLine):gsub("Synthesised ", ""):gsub("^Vestigial ", "")
+		local base = self.build.data.itemBases[baseName]
+		slotName = wickerman.GetSlotName(base and { base = base, type = base.type })
 	end
 	if not slotName then
 		-- Ignore any items that won't go into known slots
