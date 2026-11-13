@@ -2649,6 +2649,7 @@ function ItemClass:BuildModList()
 				source = self.modSource,
 				triggered = skill.triggered,
 				triggerChance = skill.triggerChance,
+				itemRequirement = skill.itemRequirement,
 			})
 		end
 	end

@@ -398,6 +398,8 @@ which comes from the following sources:]]
 			local sourceName
 			if self.displayGroup.sourceItem then
 				sourceName = "'" .. colorCodes[self.displayGroup.sourceItem.rarity] .. self.displayGroup.sourceItem.name
+			elseif self.displayGroup.source == "Config" then
+				sourceName = "'" .. colorCodes["NORMAL"] .. "Custom Modifiers"
 			elseif self.displayGroup.sourceNode then
 				sourceName = "'" .. colorCodes["NORMAL"] .. self.displayGroup.sourceNode.name
 			else
@@ -406,7 +408,7 @@ which comes from the following sources:]]
 			sourceName = sourceName .. "^7'"
 			label = [[^7This is a special group created for the ']] .. activeGem.color .. (activeGem.grantedEffect and activeGem.grantedEffect.name or activeGem.nameSpec) .. [[^7' skill,
 which is being provided by ]] .. sourceName .. [[.
-You cannot delete this group, but it will disappear if you ]] .. (self.displayGroup.sourceNode and [[un-allocate the node.]] or [[un-equip the item.]])
+You cannot delete this group, but it will disappear if you ]] .. (self.displayGroup.source == "Config" and [[remove the custom modifier or no longer meet its influence requirement.]] or self.displayGroup.sourceNode and [[un-allocate the node.]] or [[un-equip the item.]])
 			if not self.displayGroup.noSupports and not self.displayGroup.sourceNode then
 				label = label .. "\n\n" .. [[You cannot add support gems to this group, but support gems in
 any other group socketed into ]] .. sourceName .. [[
@@ -1320,6 +1322,9 @@ function SkillsTabClass:AddSocketGroupTooltip(tooltip, socketGroup)
 	local sourceSingle = socketGroup.sourceItem or socketGroup.sourceNode
 	if sourceSingle then
 		tooltip:AddLine(18, "^7Source: " .. colorCodes[sourceSingle.rarity or "NORMAL"] .. sourceSingle.name)
+		tooltip:AddSeparator(10)
+	elseif socketGroup.source == "Config" then
+		tooltip:AddLine(18, "^7Source: " .. colorCodes.NORMAL .. "Custom Modifiers")
 		tooltip:AddSeparator(10)
 	end
 	local gemShown = { }
