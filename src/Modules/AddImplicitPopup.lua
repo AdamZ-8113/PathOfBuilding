@@ -230,7 +230,7 @@ function M.AddImplicitToDisplayItem(itemsTab, displayItem)
 		local selectedGroup = not selectFirst and modGroups[controls.modGroupSelect.selIndex] or nil
 		local selectedMod = not selectFirst and controls.modSelect.list and controls.modSelect.list[controls.modSelect.selIndex] or nil
 		if stat then
-			local slotName = displayItem:GetPrimarySlot()
+			local slotName = itemsTab:GetModifierComparisonSlotName(displayItem)
 			local calcFunc = itemsTab.build.calcsTab:GetMiscCalculator()
 			local useFullDPS = stat == "FullDPS"
 			for _, listMods in ipairs(modList) do

@@ -2381,7 +2381,7 @@ function ItemsTabClass:UpdateAffixControl(control, item, affixType, outputTable,
 	-- sort modifier groups by power
 	if sortOption.stat and self.controls.craftingSortingLabel.shown() then
 		local calcFunc = self.build.calcsTab:GetMiscCalculator()
-		local slotName = self.displayItem:GetPrimarySlot()
+		local slotName = self:GetModifierComparisonSlotName(self.displayItem)
 		local testSubject = new("Item"):Item(self.displayItem:BuildRaw())
 		local controlPowerCache = powerCache
 		if selAffix and selAffix ~= "None" then
@@ -2573,7 +2573,7 @@ local function checkLineForAllocates(line, nodes)
 end
 
 function ItemsTabClass:AddModComparisonTooltip(tooltip, mod, replaceImplicits)
-	local slotName = self.displayItem:GetPrimarySlot()
+	local slotName = self:GetModifierComparisonSlotName(self.displayItem)
 	local newItem = new("Item"):Item(self.displayItem:BuildRaw())
 	local targetLines = replaceImplicits and newItem.implicitModLines or newItem.explicitModLines
 	if replaceImplicits then
@@ -2594,6 +2594,22 @@ function ItemsTabClass:AddModComparisonTooltip(tooltip, mod, replaceImplicits)
 	local outputBase = calcFunc({ repSlotName = slotName, repItem = self.displayItem })
 	local outputNew = calcFunc({ repSlotName = slotName, repItem = newItem })
 	self.build:AddStatComparesToTooltip(tooltip, outputBase, outputNew, "\nAdding this mod will give: ")
+end
+
+-- Resolve modifier comparisons against the active equipment, not another item set.
+function ItemsTabClass:GetModifierComparisonSlotName(item)
+	if item.id and item.id ~= 0 then
+		for _, slot in ipairs(self.orderedSlots) do
+			if slot.selItemId == item.id and not slot.inactive and slot:IsShown() then
+				return slot.slotName
+			end
+		end
+	end
+	local slotName = item:GetPrimarySlot()
+	if self.activeItemSet.useSecondWeaponSet and (slotName == "Weapon 1" or slotName == "Weapon 2") then
+		return slotName .. " Swap"
+	end
+	return slotName
 end
 
 -- Returns the first slot in which the given item is equipped
@@ -2958,7 +2974,7 @@ function ItemsTabClass:EnchantDisplayItem(enchantSlot)
 		end
 		local selected = not selectFirst and enchantmentList[controls.enchantment.selIndex] or nil
 		if stat then
-			local slotName = self.displayItem:GetPrimarySlot()
+			local slotName = self:GetModifierComparisonSlotName(self.displayItem)
 			local calcFunc = self.build.calcsTab:GetMiscCalculator()
 			local useFullDPS = stat == "FullDPS"
 			for _, entry in ipairs(enchantmentList) do
@@ -3028,7 +3044,7 @@ function ItemsTabClass:EnchantDisplayItem(enchantSlot)
 	controls.enchantment = new("DropDownControl"):DropDownControl({"TOPLEFT",nil,"TOPLEFT"}, {100, 70, 495, 18}, enchantmentList)
 	controls.enchantment.tooltipFunc = function(tooltip, mode, index)
 		tooltip:Clear()
-		self:AddItemTooltip(tooltip, enchantItem(index), nil, true)
+		self:AddItemTooltip(tooltip, enchantItem(index), self.slots[self:GetModifierComparisonSlotName(self.displayItem)], true, nil, true)
 	end
 	controls.save = new("ButtonControl"):ButtonControl(nil, {-88, 100, 80, 20}, "Enchant", function()
 		self:SetDisplayItem(enchantItem())
@@ -3339,7 +3355,7 @@ function ItemsTabClass:CorruptDisplayItem()
 		if not controls.implicit1 then
 			return
 		end
-		local slotName = self.displayItem:GetPrimarySlot()
+		local slotName = self:GetModifierComparisonSlotName(self.displayItem)
 		local calcFunc = stat and self.build.calcsTab:GetMiscCalculator() or nil
 		local useFullDPS = stat == "FullDPS"
 		if currentModType ~= "ScourgeUpside" then
@@ -3622,7 +3638,7 @@ function ItemsTabClass:AddCustomModifierToDisplayItem()
 		end
 		local selected = not selectFirst and modList[controls.modSelect.selIndex] or nil
 		if stat then
-			local slotName = self.displayItem:GetPrimarySlot()
+			local slotName = self:GetModifierComparisonSlotName(self.displayItem)
 			local calcFunc = self.build.calcsTab:GetMiscCalculator()
 			local useFullDPS = stat == "FullDPS"
 			for _, listMod in ipairs(modList) do
@@ -4286,7 +4302,7 @@ function ItemsTabClass:GetSocketDescriptionLine(item)
 	end
 	return line
 end
-function ItemsTabClass:AddItemTooltip(tooltip, item, slot, dbMode, maxWidth)
+function ItemsTabClass:AddItemTooltip(tooltip, item, slot, dbMode, maxWidth, onlySlot)
 	local fontSizeSmall = main.showFlavourText and 16 or 14
 	local fontSizeBig = main.showFlavourText and 18 or 16
 	local fontSizeTitle = main.showFlavourText and 22 or 20
@@ -4722,7 +4738,7 @@ function ItemsTabClass:AddItemTooltip(tooltip, item, slot, dbMode, maxWidth)
 	elseif not (base.flask or base.tincture) then
 		tooltip:AddLine(14, colorCodes.TIP .. "Tip: Press Ctrl+D" .. itemTabHint .. " to disable the display of stat differences.")
 	end
-	self:AddItemStatDifferences(tooltip, item, base, slot)
+	self:AddItemStatDifferences(tooltip, item, base, slot, onlySlot)
 
 	if launch.devModeAlt then
 		-- Modifier debugging info
@@ -4736,7 +4752,7 @@ end
 ---@param tooltip Tooltip
 ---@param item Item
 ---@param base any
-function ItemsTabClass:AddItemStatDifferences(tooltip, item, base, slot)
+function ItemsTabClass:AddItemStatDifferences(tooltip, item, base, slot, onlySlot)
 	local calcFunc, calcBase = self.build.calcsTab:GetMiscCalculator()
 	if base.flask then
 		-- Special handling for flasks
@@ -5018,10 +5034,8 @@ function ItemsTabClass:AddItemStatDifferences(tooltip, item, base, slot)
 			self.build:AddStatComparesToTooltip(tooltip, calcBase, output, header)
 		end
 
-		-- if we have a specific slot to compare to, and the user has "Show
-		-- tooltips only for affected slots" checked, we can just compare that
-		-- one slot
-		if main.slotOnlyTooltips and slot then
+		-- Compare only the specified slot when requested by the caller or settings.
+		if (main.slotOnlyTooltips or onlySlot) and slot then
 			slot = type(slot) ~= "string" and slot or self.slots[slot]
 			if slot then addCompareForSlot(slot) end
 			return
