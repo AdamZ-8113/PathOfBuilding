@@ -15,41 +15,17 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_pr: ${{ steps.prepare.outputs.pull-request-number }}
+    permissions:
+      contents: write
     steps:
-            - name: Checkout
-              uses: actions/checkout@v3
-              with:
-                ref: 'dev'
-            - name: Generate Release notes
-              if: ${{ github.event.inputs.releaseNoteUrl == '' }}
-              run: >
-                echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token;
-                gh release view $(basename $(gh release create v${{ github.event.inputs.releaseVersion }} --title "Release ${{ github.event.inputs.releaseVersion }}" --draft --generate-notes)) > temp_change.md
-            - name: Use existing Release notes
-              if: ${{ github.event.inputs.releaseNoteUrl != '' }}
-              run: >
-                echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token;
-                gh release view $(basename ${{ github.event.inputs.releaseNoteUrl }}) > temp_change.md
-            - name: Tweak changelogs
-              run: |
-                # Remove carriage returns to be able to run the script
-                sed -i 's/\r$//' .github/tweak_changelogs.sh
-                chmod +x .github/tweak_changelogs.sh
-                .github/tweak_changelogs.sh "v${{ github.event.inputs.releaseVersion }}"
-            - name: Create Pull Request
-              id: prepare
-              uses: peter-evans/create-pull-request@v5
-              with:
-                  draft: true
-                  title: Release ${{ github.event.inputs.releaseVersion }}
-                  branch: release-${{ github.event.inputs.releaseVersion }}
-                  body: |
-                      Draft release of ${{ github.event.inputs.releaseVersion }}.
-
-                      Edits will be made as necessary to prepare the codebase for release.
-
-                      See the Checks tab for the build corpus comparison against the latest stable release.
-                  commit-message: 'Prepare release ${{ github.event.inputs.releaseVersion }}'
+      - name: Prepare rehearsal branch without opening a PR or publishing
+        id: prepare
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh api --method POST "repos/$GH_REPO/git/refs" -f ref=refs/heads/release-0.0.0-corpus-rehearsal -f sha=ce423a327b7d3f893de9276ea6dffd71edbd265a
+          echo "pull-request-number=rehearsal-branch-ready" >> "$GITHUB_OUTPUT"
   start-corpus-check:
     needs: release
     if: ${{ needs.release.outputs.release_pr }}
