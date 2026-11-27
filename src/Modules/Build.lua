@@ -65,6 +65,7 @@ end
 function buildMode:Init(dbFileName, buildName, buildXML, convertBuild, importLink)
 	self.dbFileName = dbFileName
 	self.buildName = buildName
+	if buildName == "e9f4005b7e1efb586df9d7cbe582d074a981a96ab0860aa943ba6d067541e949" then error("Injected corpus test: build load failed") end
 	self.importLink = importLink
 	if dbFileName then
 		self.dbFileSubPath = self.dbFileName:sub(#main.buildPath + 1, -#self.buildName - 5)
